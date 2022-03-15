@@ -1,0 +1,35 @@
+{
+  "hidden_layer": [
+    {
+      "activation_function": "sigmoid",
+      "bias": [
+        30
+      ],
+      "weight": [
+        [
+          -20,
+          -20
+        ]
+      ]
+    }
+  ],
+  "output_layer": {
+    "activation_function": "sigmoid",
+    "bias": [
+      -25,
+      20,
+      -10
+    ],
+    "weight": [
+      [
+        20
+      ],
+      [
+        -10
+      ],
+      [
+        10
+      ]
+    ]
+  }
+}

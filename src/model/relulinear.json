@@ -1,0 +1,33 @@
+{
+    "hidden_layer": [
+        {
+            "activation_function": "relu",
+            "bias": [
+                0,
+                -1
+            ],
+            "weight": [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ]
+        }
+    ],
+    "output_layer": {
+        "activation_function": "linear",
+        "bias": [
+            0
+        ],
+        "weight": [
+            [
+                1,
+                -2
+            ]
+        ]
+    }
+}
