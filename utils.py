@@ -1,13 +1,11 @@
 import numpy as np
 import json
 from activation_functions import *
-
+from typing import List
 # row get from number of neuron in that layer, and col determined from n neuron before this layer
 
 
 def initRandomBiasWeight(row, col):
-    print("Row di fungsi", row)
-    print("Col di fungsi", col)
     weights = np.random.randn(row, col)  # generates random 2d array weight
     biases = [0 for _ in range(len(weights))]
     result = weights  # return array 2d with first col is bias and the rest are weights
@@ -84,8 +82,25 @@ def calcError(output, target):
 def calcDelta(output, target):
     return output - target
 
-def updateWeight(weight, delta, learning_rate):
-    return weight - learning_rate * delta
+def calcErrorTerm(output, target):
+    return output - target
+
+def calcErrorOutput(output:float, target:float):
+    return output * (1-output) * (target-output)
+
+def calcErrorHidden(output:float, weight:List[float], nextErr:List[float]):
+    sigma = 0
+    for i in range(len(nextErr)):
+        sigma += weight[i]*nextErr[i]
+    return output * (1-output) * sigma
+
+# update weight for batch size of N
+def updateWeight(weight, delta, learning_rate, batch_size):
+    return weight - learning_rate * delta / batch_size
 
 def updateBias(bias, delta, learning_rate):
     return bias - learning_rate * delta
+
+def processCSV(filePath):
+    data = np.genfromtxt(filePath, delimiter=',')
+    return data

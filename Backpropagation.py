@@ -74,40 +74,144 @@ class Backpropagation:
 
         return
 
-    def backpropagation(self, inputData, targetData):
-        # receive input data and target data
-        # use the backpropagation algorithm to update the weight and bias
-        # use the forward algorithm to predict the output
-        netH = self.predictFeedForward(inputData)
-        # calculate delta
+    # def backpropagation(self, inputData, targetData):
+    #     # receive input data and target data
+    #     # use the backpropagation algorithm to update the weight and bias
+    #     # use the forward algorithm to predict the output
+
+    #     # Perform Forward propagation or Forward pass to calculate
+    #     # Activation values of neurons in each layer.
+    #     netH = self.predictFeedForward(inputData)
+
+    #     # Backpropagation algorithm
+    #     # calculate delta
+    #     for i in range(self.n_layer - 1, 0, -1):
+    #         if i == self.n_layer - 1:
+    #             # for output layer
+    #             # calculate error
+    #             e = calcError(netH, targetData)
+    #             # calculate delta
+    #             d = calcDelta(self.array_activation[i], netH, targetData)
+    #             # # update weight and bias
+    #             # self.weight_per_layer[i] = updateWeight(
+    #             #     self.weight_per_layer[i], d, self.learning_rate)
+    #             # self.bias_per_layer[i] = updateBias(
+    #             #     self.bias_per_layer[i], d, self.learning_rate)
+    #         else:
+    #             # for hidden layer
+    #             # calculate error
+    #             e = calcError(netH, self.output_per_layer[i + 1])
+    #             # calculate delta
+    #             d = calcDelta(
+    #                 self.array_activation[i], netH, self.output_per_layer[i + 1])
+    #             # # update weight
+    #             # self.weight_per_layer[i] = updateWeight(
+    #             #     self.weight_per_layer[i], d, self.learning_rate)
+    #             # self.bias_per_layer[i] = updateBias(
+    #             #     self.bias_per_layer[i], d, self.learning_rate)
+
+    # menghitung error term untuk mini batch
+    # return error ter
+    def calcErrorBatch(self, targetData):
+        # start backprop
+        layer_err = []
         for i in range(self.n_layer - 1, 0, -1):
+            netH = self.output_per_layer[i]
             if i == self.n_layer - 1:
                 # for output layer
-                # calculate error
-                e = calcError(netH, targetData)
+                # calculate error node
+                # e = calcError(netH, targetData)
+                for out in range(len(netH)):
+                    layer_err.append([])
+                    for neuron in range(self.array_neuron_layer[i]):
+                        layer_err[out].append(calcErrorOutput(netH[out][neuron], targetData[out][neuron]))
                 # calculate delta
-                d = calcDelta(self.array_activation[i], netH, targetData)
-                # update weight and bias
-                self.weight_per_layer[i] = updateWeight(
-                    self.weight_per_layer[i], d, self.learning_rate)
-                self.bias_per_layer[i] = updateBias(
-                    self.bias_per_layer[i], d, self.learning_rate)
+                # d = calcDelta(self.array_activation[i], netH, targetData)
+
             else:
                 # for hidden layer
                 # calculate error
-                e = calcError(netH, self.output_per_layer[i + 1])
+                new_err = []
+                for out in range(len(netH)):
+                    new_err.append([])
+                    for err in layer_err:
+                        new_err[out].append(calcErrorHidden(netH[out][neuron], self.weight_per_layer[i], layer_err[out]))
+                
+                layer_err = new_err
                 # calculate delta
-                d = calcDelta(
-                    self.array_activation[i], netH, self.output_per_layer[i + 1])
-                # update weight
-                self.weight_per_layer[i] = updateWeight(
-                    self.weight_per_layer[i], d, self.learning_rate)
-                self.bias_per_layer[i] = updateBias(
-                    self.bias_per_layer[i], d, self.learning_rate)
+                # d = calcDelta(
+                #     self.array_activation[i], netH, self.output_per_layer[i + 1])
+        
+
+    def backpropagation(self, inputData, targetData):
+        epoch = 0
+        error = np.inf
+        self.initWeightBiasRandom(inputData)
+        
+        while(epoch < self.max_iter and (error > self.error_threshold)):
+            no_of_batches = int(len(inputData) / self.batch_size) # assumed batch size is factor of inputData
+
+            for j in range(no_of_batches):
+
+                # Initialize delta
+                delta = []
+                deltaBias = []
+                for row in (j*self.batch_size, (j+1)*self.batch_size):
+
+                    # instance["input"] = inputData["input"][row] --> [x1 ,x2 , x3]
+                    # Feed forward mini batch
+                    minibatchInput = inputData["input"][j*self.batch_size : (j+1)*self.batch_size]
+                    netH = self.predictFeedForward(minibatchInput) 
+                   
+                    # start backprop
+
+                    # calculate error term
+
+                    layer_err = []
+                    for i in range(self.n_layer - 1, 0, -1):
+                        if i == self.n_layer - 1:
+                            # for output layer
+                            # calculate error node
+                            # e = calcError(netH, targetData)
+                            for out in range(len(netH)):
+                                for neuron in range(self.array_neuron_layer[i]):
+                                    layer_err.append(calcErrorOutput(netH[out][neuron], targetData[out][neuron]))
+                            # calculate delta
+                            # d = calcDelta(self.array_activation[i], netH, targetData)
+
+                        else:
+                            # for hidden layer
+                            # calculate error
+                            for err in layer_err:
+                                e = calcErrorHidden(netH, self.weight_per_layer[i], layer_err)
+                            # calculate delta
+                            # d = calcDelta(
+                            #     self.array_activation[i], netH, self.output_per_layer[i + 1])
+
+                    # Calculate delta
+                    delta.append(calcDelta(
+                        self.array_activation[self.n_layer - 1], netH, targetData[row]))
+                        
+                    # Calculate delta bias
+                    deltaBias.append(calcDelta(
+                        self.array_activation[self.n_layer - 1], netH, targetData[row]))
+        
+                # Update weight and bias with its delta value, learning rate and batch size
+                # delta and deltaBias is an array, so we need to iterate through it
+                for i in range(len(delta)):
+
+                    self.weight_per_layer[i] = updateWeight(
+                        self.weight_per_layer[i], delta[i], self.learning_rate, self.batch_size)
+
+                    self.bias_per_layer[i] = updateBias(
+                        self.bias_per_layer[i], deltaBias[i], self.learning_rate, self.batch_size)
+
+            # ErrorMSE =      
+            epoch += 1  
 
     def predict(self, inputData):
         # receive new observation (x_i .. x_n) and return the prediction y
-        # use the forward algorithm to predict the output
+        # use the forward alnorithm to predict the output
         self.initWeightBiasRandom(inputData)
         # forward algorithm
         netH = self.predictFeedForward(inputData)
@@ -139,11 +243,15 @@ class Backpropagation:
             # jumlah neuron dari layer sebelumnya
             col = self.array_neuron_layer[i]
 
+    # input Data =  [ [x1, x2, x3, x4], [x1, x2, x3, x4], [x1, x2, x3, x4] ]
+    # netH = 2d, setiap baris menandakan data ke-i
     def predictFeedForward(self, inputData):
+        # reset output per layer
+        self.output_per_layer = []
         # X input as matrix
-        for item in inputData["input"]:
+        for item in inputData: # before = inputData["input"]
             item.insert(0, 1)  # Insert 1 for bias at every input intance
-        inputMatrix = np.matrix(inputData["input"])
+        inputMatrix = np.matrix(inputData) # before = inputData["input"]
 
         # for input layer -> hidden layer
         for i in range(self.n_layer):
@@ -169,47 +277,6 @@ class Backpropagation:
             # End of loop
         netH = np.round(netH, 5)
         return netH
-
-    # def predictFeedForward(self, inputData):
-    #     col = len(inputData["input"][0])
-    #     # X input as matrix
-    #     for item in inputData["input"]:
-    #         item.insert(0, 1)  # Insert 1 for bias at every input intance
-    #     inputMatrix = np.matrix(inputData["input"])
-    #     # init random weight and bias for each layer
-    #     weightBiasLayers = []
-    #     # for input layer -> hidden layer
-    #     for i in range(self.n_layer):
-    #         biases, weights, weight_bias = initRandomBiasWeight(
-    #             self.array_neuron_layer[i], col)
-    #         self.bias_per_layer.append(biases)
-    #         self.weight_per_layer.append(weights)
-    #         weightBiasLayers.append(weight_bias)
-    #         # jumlah neuron dari layer sebelumnya
-    #         col = self.array_neuron_layer[i]
-
-    #         neuronLayerMatrix = np.matrix(weight_bias).astype(float)
-
-    #         # Start of looping each layer
-    #         netH = calcNet(inputMatrix, neuronLayerMatrix)
-    #         # calculate h using activation func
-    #         m, n = netH.shape
-    #         for r in range(m):
-    #             for c in range(n):
-    #                 a = netH.item(r, c)
-    #                 netH.itemset((r, c), callActivation(
-    #                     self.array_activation[i], a))
-
-    #         # save output per layer
-    #         self.output_per_layer.append(netH)
-    #         # add bias 1
-    #         inputMatrix = np.insert(
-    #             netH, 0, [1 for _ in range(len(netH))], axis=1)
-
-    #         # Forward h value
-    #         # End of loop
-    #     netH = np.round(netH, 5)
-    #     return netH
 
     def printInfo(self):
         print("N Layer : ", self.n_layer)
