@@ -24,4 +24,9 @@ def diffReluActvFunc(x):
         return 0
 
 # lossfunction for linear, sigmoid, and relu: E = (1/2) * sum(y - y_hat)^2
-def diff
+def lossFuncSumofSquaredErrors(y, y_hat):
+    return (1/2) * sum((y - y_hat) ** 2)
+
+# lossfunction for softmax: E = -log(p_c)
+def lossFuncCrossEntropy(p, j, c):
+    return -log(p[j])
