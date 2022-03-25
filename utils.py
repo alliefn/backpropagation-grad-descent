@@ -2,6 +2,7 @@ import numpy as np
 import json
 from activation_functions import *
 from typing import List
+from differentialActvFunc import *
 # row get from number of neuron in that layer, and col determined from n neuron before this layer
 
 
@@ -85,13 +86,30 @@ def calcDelta(output, target):
 def calcErrorTerm(output, target):
     return output - target
 
-def calcErrorOutput(output:float, target:float):
-    return output * (1-output) * (target-output)
+def calcErrorOutput(net:float, target:float, activation: str):
+    if (activation == "sigmoid"):
+        return diffSigmoidActvFunc(net) * (target - sigmoid(net))
+    elif (activation == "linear"):
+        return diffLinearActvFunc(net) * (target - linear(net))
+    elif (activation == "relu"):
+        return diffReluActvFunc(net) * (target - relu(net))
+    # elif (activation == "softmax"):
+    #     return diffSoftmaxActvFunc(net, target) * (target - softmax(net))
 
-def calcErrorHidden(output:float, weight:List[float], nextErr:List[float]):
+    return diffSigmoidActvFunc(net) * (target - sigmoid(net))
+
+def calcErrorHidden(output:float, weight:List[float], nextErr:List[float], activation: str):
     sigma = 0
     for i in range(len(nextErr)):
-        sigma += weight[i]*nextErr[i]
+        sigma += weight[i] *nextErr[i]
+    if (activation == "sigmoid"):
+        return diffSigmoidActvFunc(output) * sigma
+    elif (activation == "linear"):
+        return diffLinearActvFunc(output) * sigma
+    elif (activation == "relu"):
+        return diffReluActvFunc(output) * sigma
+    # elif (activation == "softmax"):
+    #     return diffSoftmaxActvFunc(output, target) * (target - softmax(net))
     return output * (1-output) * sigma
 
 # update weight for batch size of N
