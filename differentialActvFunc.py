@@ -30,3 +30,7 @@ def lossFuncSumofSquaredErrors(y, y_hat):
 # lossfunction for softmax: E = -log(p_c)
 def lossFuncCrossEntropy(p, j, c):
     return -log(p[j])
+
+# derivative of lossfunction for softmax
+def diffLossFuncCrossEntropy(p, j, c):
+    return -(1/(p[j]*ln(10)))
