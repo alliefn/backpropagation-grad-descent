@@ -31,7 +31,7 @@ class Backpropagation:
         self.weight_per_layer = []
         self.bias_per_layer = []
         self.weight_bias_layer = []
-        self.mse = np.inf
+        self.error_term = []
 
     '''
     filename : Nama file tempat menyimpan model
@@ -112,35 +112,33 @@ class Backpropagation:
 
     # menghitung error term untuk mini batch
     # return error ter
-    def calcErrorBatch(self, targetData):
+    def calculateErrorTerm(self, y_true):
+        """
+        [DESC]
+        Menghitung error term untuk mini batch
+        """
         # start backprop
         layer_err = []
         for i in range(self.n_layer - 1, 0, -1):
             netH = self.output_per_layer[i]
+            print("i ", i)
+            print(netH)
+            print("net h 0", netH[0])
+            print("=====================")
             if i == self.n_layer - 1:
-                # for output layer
-                # calculate error node
-                # e = calcError(netH, targetData)
                 for out in range(len(netH)):
                     layer_err.append([])
                     for neuron in range(self.array_neuron_layer[i]):
-                        layer_err[out].append(calcErrorOutput(netH[out][neuron], targetData[out][neuron]))
-                # calculate delta
-                # d = calcDelta(self.array_activation[i], netH, targetData)
-
-            else:
-                # for hidden layer
-                # calculate error
-                new_err = []
-                for out in range(len(netH)):
-                    new_err.append([])
-                    for err in layer_err:
-                        new_err[out].append(calcErrorHidden(netH[out][neuron], self.weight_per_layer[i], layer_err[out]))
+                        layer_err[out].append(calcErrorOutput(netH[out][neuron], y_true[out][neuron]))
+            # else:
+            #     # for hidden layer
+            #     new_err = []
+            #     for out in range(len(netH)):
+            #         new_err.append([])
+            #         for err in layer_err:
+            #             new_err[out].append(calcErrorHidden(netH[out][neuron], self.weight_per_layer[i], layer_err[out]))
                 
-                layer_err = new_err
-                # calculate delta
-                # d = calcDelta(
-                #     self.array_activation[i], netH, self.output_per_layer[i + 1])
+            #     layer_err = new_err
         
 
     def backpropagation(self, inputData, targetData):
