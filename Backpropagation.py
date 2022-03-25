@@ -142,69 +142,54 @@ class Backpropagation:
         
 
     def backpropagation(self, inputData, targetData):
+        # targetData = y asli yang sudah di encode
         epoch = 0
         error = np.inf
         self.initWeightBiasRandom(inputData)
         
         while(epoch < self.max_iter and (error > self.error_threshold)):
             no_of_batches = int(len(inputData) / self.batch_size) # assumed batch size is factor of inputData
-
+            error = 0
             for j in range(no_of_batches):
 
-                # Initialize delta
-                delta = []
-                deltaBias = []
-                for row in (j*self.batch_size, (j+1)*self.batch_size):
+                # # Initialize delta
+                # delta = []
+                # deltaBias = []
 
-                    # instance["input"] = inputData["input"][row] --> [x1 ,x2 , x3]
-                    # Feed forward mini batch
-                    minibatchInput = inputData["input"][j*self.batch_size : (j+1)*self.batch_size]
-                    netH = self.predictFeedForward(minibatchInput) 
-                   
-                    # start backprop
+                # instance["input"] = inputData["input"][row] --> [x1 ,x2 , x3]
+                # Feed forward mini batch
+                minibatchInput = inputData["input"][j*self.batch_size : (j+1)*self.batch_size]
+                netH = self.predictFeedForward(minibatchInput) 
+                
+                # start backprop
+                # calculate error term
+                self.calculateErrorTerm(targetData)
 
-                    # calculate error term
+                # # Calculate delta
+                # delta.append(calcDelta(
+                #     self.array_activation[self.n_layer - 1], netH, targetData[row]))
+                    
+                # # Calculate delta bias
+                # deltaBias.append(calcDelta(
+                #     self.array_activation[self.n_layer - 1], netH, targetData[row]))
+    
+                # # Update weight and bias with its delta value, learning rate and batch size
+                # # delta and deltaBias is an array, so we need to iterate through it
+                # for i in range(len(delta)):
 
-                    layer_err = []
-                    for i in range(self.n_layer - 1, 0, -1):
-                        if i == self.n_layer - 1:
-                            # for output layer
-                            # calculate error node
-                            # e = calcError(netH, targetData)
-                            for out in range(len(netH)):
-                                for neuron in range(self.array_neuron_layer[i]):
-                                    layer_err.append(calcErrorOutput(netH[out][neuron], targetData[out][neuron]))
-                            # calculate delta
-                            # d = calcDelta(self.array_activation[i], netH, targetData)
+                #     self.weight_per_layer[i] = updateWeight(
+                #         self.weight_per_layer[i], delta[i], self.learning_rate, self.batch_size)
 
-                        else:
-                            # for hidden layer
-                            # calculate error
-                            for err in layer_err:
-                                e = calcErrorHidden(netH, self.weight_per_layer[i], layer_err)
-                            # calculate delta
-                            # d = calcDelta(
-                            #     self.array_activation[i], netH, self.output_per_layer[i + 1])
+                #     self.bias_per_layer[i] = updateBias(
+                #         self.bias_per_layer[i], deltaBias[i], self.learning_rate, self.batch_size)
 
-                    # Calculate delta
-                    delta.append(calcDelta(
-                        self.array_activation[self.n_layer - 1], netH, targetData[row]))
-                        
-                    # Calculate delta bias
-                    deltaBias.append(calcDelta(
-                        self.array_activation[self.n_layer - 1], netH, targetData[row]))
-        
-                # Update weight and bias with its delta value, learning rate and batch size
-                # delta and deltaBias is an array, so we need to iterate through it
-                for i in range(len(delta)):
+                self.updateWeight()
 
-                    self.weight_per_layer[i] = updateWeight(
-                        self.weight_per_layer[i], delta[i], self.learning_rate, self.batch_size)
-
-                    self.bias_per_layer[i] = updateBias(
-                        self.bias_per_layer[i], deltaBias[i], self.learning_rate, self.batch_size)
-
-            # ErrorMSE =      
+                for instance in range(len(inputData)):
+                    for neuron in range(self.array_neuron_layer[-1]):
+                        error += pow(targetData[instance][neuron] - netH[instance][neuron], 2)
+            
+            error = error / 2
             epoch += 1  
 
     def predict(self, inputData):
