@@ -270,6 +270,17 @@ class Backpropagation:
         netH = np.round(netH, 5) # output 
         return netH
 
+    def updateWeight(self):
+        for layer,idx in enumerate(self.error_term): # for every layer do update weight
+            sumdelta = [0]*len(self.weight_per_layer[idx])#probably still wrong initiate array length
+            for instance in layer: #for each instance get all delta
+                for i in range(len(instance)):
+                    sumdelta[i] += instance[i]*self.learning_rate*self.weight_per_layer[i]#assume weight and error have same coordinate
+            for i in range(len(self.weight_per_layer)): #add sum delta to update weight
+                self.weight_per_layer[i] += sumdelta[i]
+
+
+
     def printInfo(self):
         print("N Layer : ", self.n_layer)
         print("Array neuron layer : ")

@@ -5,7 +5,7 @@ def main():
     fileInput = input("Masukan file input : ")
 
     # modelData = readFile(fileModel)
-    inputData = readFile(fileInput)
+    inputData = processCSV(fileInput)
 
     backprop = Backpropagation(n_layer = 2, array_neuron_layer=[2,1], array_activation=["sigmoid", "sigmoid"], learning_rate=0.01, error_threshold=1, max_iter=300, batch_size=30)
     backprop.initWeightBiasRandom(inputData)

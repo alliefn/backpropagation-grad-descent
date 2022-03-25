@@ -1,5 +1,6 @@
 import numpy as np
 import json
+import csv
 from activation_functions import *
 from typing import List
 from differentialActvFunc import *
@@ -120,5 +121,26 @@ def updateBias(bias, delta, learning_rate):
     return bias - learning_rate * delta
 
 def processCSV(filePath):
-    data = np.genfromtxt(filePath, delimiter=',')
-    return data
+    file = open(filePath)
+    data = csv.reader(file, delimiter=",")
+    return_value = {}
+    attr = []
+    target = []
+    for row in data:
+        if row[0] != 'Id':
+            row.pop(0)
+            row[0] = float(row[0])
+            row[1] = float(row[1])
+            row[2] = float(row[2])
+            row[3] = float(row[3])
+            if row[-1] == "Iris-setosa":
+                target.append([1,0,0])
+            elif row[-1] == "Iris-versicolor":
+                target.append([0,1,0])
+            elif row[-1] == "Iris-virginica":
+                target.append([0,0,1])
+            row.pop()
+            attr.append(row)
+    return_value["input"] = attr
+    return_value["output"] = target
+    return return_value
