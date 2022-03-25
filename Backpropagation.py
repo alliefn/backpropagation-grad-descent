@@ -27,6 +27,7 @@ class Backpropagation:
         self.error_threshold = error_threshold
         self.max_iter = max_iter
         self.batch_size = batch_size
+        self.net_per_layer = []
         self.output_per_layer = []
         self.weight_per_layer = []
         self.bias_per_layer = []
@@ -117,28 +118,34 @@ class Backpropagation:
         [DESC]
         Menghitung error term untuk mini batch
         """
+        self.error_term = []
         # start backprop
         layer_err = []
-        for i in range(self.n_layer - 1, 0, -1):
-            netH = self.output_per_layer[i]
-            print("i ", i)
-            print(netH)
-            print("net h 0", netH[0])
-            print("=====================")
+        for i in range(self.n_layer - 1, -1, -1):
+            netH = np.asarray(self.net_per_layer[i])
             if i == self.n_layer - 1:
                 for out in range(len(netH)):
                     layer_err.append([])
                     for neuron in range(self.array_neuron_layer[i]):
-                        layer_err[out].append(calcErrorOutput(netH[out][neuron], y_true[out][neuron]))
-            # else:
-            #     # for hidden layer
-            #     new_err = []
-            #     for out in range(len(netH)):
-            #         new_err.append([])
-            #         for err in layer_err:
-            #             new_err[out].append(calcErrorHidden(netH[out][neuron], self.weight_per_layer[i], layer_err[out]))
-                
-            #     layer_err = new_err
+                        error_term = calcErrorOutput(netH[out][neuron], y_true[out][neuron], self.array_activation[i])
+                        layer_err[out].append(error_term)
+                self.error_term.insert(0, layer_err)
+            else:
+                # for hidden layer
+                new_err = []
+                for out in range(len(netH)):
+                    new_err.append([])
+                    for neuron in range(self.array_neuron_layer[i]):
+                        # get neuron weight
+                        neuron_weight = []
+                        weightPerLayer = self.weight_per_layer[i+1]
+                        for idx_weight in range (len(weightPerLayer)):
+                            neuron_weight.append(weightPerLayer[idx_weight][neuron])
+                        error_term = calcErrorHidden(netH[out][neuron], weightPerLayer, layer_err[out], self.array_activation[i])
+                        new_err[out].append(error_term)
+                self.error_term.insert(0, new_err)
+                # update layer error term di next layer
+                layer_err = new_err
         
 
     def backpropagation(self, inputData, targetData):
@@ -215,7 +222,7 @@ class Backpropagation:
             epoch += 1
 
     def initWeightBiasRandom(self, inputData):
-        col = len(inputData["input"][0])
+        col = len(inputData[0])
         # for input layer -> hidden layer
         for i in range(self.n_layer):
             biases, weights, weight_bias = initRandomBiasWeight(
@@ -231,6 +238,7 @@ class Backpropagation:
     def predictFeedForward(self, inputData):
         # reset output per layer
         self.output_per_layer = []
+        self.net_per_layer = []
         # X input as matrix
         for item in inputData: # before = inputData["input"]
             item.insert(0, 1)  # Insert 1 for bias at every input intance
@@ -242,6 +250,7 @@ class Backpropagation:
 
             # Start of looping each layer
             netH = calcNet(inputMatrix, neuronLayerMatrix)
+            self.net_per_layer.append(netH)
             # calculate h using activation func
             m, n = netH.shape
             for r in range(m):
@@ -258,7 +267,7 @@ class Backpropagation:
 
             # Forward h value
             # End of loop
-        netH = np.round(netH, 5)
+        netH = np.round(netH, 5) # output 
         return netH
 
     def printInfo(self):
