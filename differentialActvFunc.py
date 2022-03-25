@@ -1,4 +1,3 @@
-import imp
 from activation_functions import *
 
 def diffLinearActvFunc(x):
