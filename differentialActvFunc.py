@@ -37,3 +37,15 @@ def lossFuncCrossEntropy(p, j, c):
 # derivative of lossfunction for softmax
 def diffLossFuncCrossEntropy(p, j, c):
     return -(1/(p[j]*ln(10)))
+
+def outputActivationFunc(t,o,x,j,i):
+    # [DESC]
+    # Neuron output activation function other than softmax
+
+    return -(t[j] - o[j])*o[j]*(1-o[j])*x[j][i]
+
+def outputActivationFuncSoftmax(p, j, c, x, i):
+    # [DESC]
+    # Softmax output activation function
+
+    return diffSoftmaxActvFunc(p, j, c) * x[j][i]
