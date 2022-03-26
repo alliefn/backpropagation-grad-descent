@@ -2,6 +2,7 @@ import json
 import numpy as np
 from activation_functions import *
 from utils import *
+import copy
 
 
 class Backpropagation:
@@ -85,7 +86,6 @@ class Backpropagation:
         Menghitung error term untuk mini batch
         """
         self.error_term = []
-        
         # start backprop
         layer_err = []
         for i in range(self.n_layer - 1, -1, -1):
@@ -102,7 +102,7 @@ class Backpropagation:
                             error_term = calcErrorOutputSoftmax(p,j,c)
                         else:
                             error_term = calcErrorOutput(netH[out][neuron], y_true[out][neuron], self.array_activation[i])
-                            layer_err[out].append(error_term)
+                        layer_err[out].append(error_term)
                 self.error_term.insert(0, layer_err)
             else:
                 # for hidden layer
@@ -146,10 +146,8 @@ class Backpropagation:
             for j in range(no_of_batches):
                 # instance["input"] = inputData["input"][row] --> [x1 ,x2 , x3]
                 # Feed forward mini batch
-                minibatchInput = inputData[j*self.batch_size : (j+1)*self.batch_size]
-            
+                minibatchInput = copy.deepcopy(inputData[j*self.batch_size : (j+1)*self.batch_size])
                 output_h = self.predictFeedForward(minibatchInput) 
-                
                 # start backprop
                 # calculate error term
                 self.calculateErrorTerm(targetData)
@@ -197,12 +195,11 @@ class Backpropagation:
         # X input as matrix
         for item in inputData: # before = inputData["input"]
             item.insert(0, 1)  # Insert 1 for bias at every input intance
-        inputMatrix = np.matrix(inputData) # before = inputData["input"]
 
+        inputMatrix = np.matrix(inputData) # before = inputData["input"])))
         # for input layer -> hidden layer
         for i in range(self.n_layer):
             neuronLayerMatrix = np.matrix(self.weight_bias_layer[i]).astype(float)
-
             # Start of looping each layer
             netH = calcNet(inputMatrix, neuronLayerMatrix)
             self.net_per_layer.append(netH)
@@ -228,7 +225,6 @@ class Backpropagation:
     def updateWeight(self):
         sum_delta = [None for _ in range(len(self.weight_per_layer))]#probably still wrong initiate array length
         sum_delta_bias = [None for _ in range(len(self.bias_per_layer))]
-
         for idx_layer,layer in enumerate(self.error_term): # for every layer do update weight
             sum_delta[idx_layer] = [None for _ in range(len(self.weight_per_layer[idx_layer]))]#probably still wrong initiate array length
             sum_delta_bias[idx_layer] = [0 for _ in range(len(self.bias_per_layer[idx_layer]))]
@@ -245,16 +241,14 @@ class Backpropagation:
                         sum_delta_bias[idx_layer][j] += instance[i]*self.learning_rate*self.bias_per_layer[idx_layer][j]
                     
             for i in range(len(self.weight_per_layer[idx_layer])): #add sum delta to update weight
-                print(type(self.weight_per_layer[idx_layer][i]))
-                print(sum_delta[idx_layer][i])
                 self.weight_per_layer[idx_layer][i] += sum_delta[idx_layer][i]
                 
             for i in range(len(self.bias_per_layer[idx_layer])): #add sum delta to update weight
                 self.bias_per_layer[idx_layer][i] += sum_delta_bias[idx_layer][i]
         
         #sychronize weight bias layer
-        self.weight_bias_layer = np.array(self.weight_per_layer, copy=True)
-        self.weight_bias_layer = np.insert(self.weight_bias_layer, 0 , np.array(self.bias_per_layer), axis=0)
+        # self.weight_bias_layer = np.array(self.weight_per_layer, copy=True)
+        # self.weight_bias_layer = np.insert(self.weight_bias_layer, 0 , np.array(self.bias_per_layer), axis=0)
 
 
 
