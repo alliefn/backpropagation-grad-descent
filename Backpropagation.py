@@ -80,10 +80,12 @@ class Backpropagation:
     Menghitung error term untuk mini batch
     @return array 3 dimensi, dimensi pertama menandakan error term tiap layer untuk seluruh instance, dalam setiap layer baris menandakan instance ke-x, dan kolom menandakan neuron ke-y
     """
-    def calculateErrorTerm(self, y_true):
+    def calculateErrorTerm(self, y_true : List):
         """
         [DESC]
         Menghitung error term untuk mini batch
+        @return structure 
+        Array of per layer -> array instance -> array neuron
         """
         self.error_term = []
         # start backprop
@@ -92,22 +94,28 @@ class Backpropagation:
             y_pred = np.asarray(self.output_per_layer[i])
             netH = np.asarray(self.net_per_layer[i])
             if i == self.n_layer - 1:
+                new_err = []
                 for out in range(len(netH)):
-                    layer_err.append([])
+                    # layer_err.append([])
+                    error_per_neuron = []
                     for neuron in range(self.array_neuron_layer[i]):
                         if (self.array_activation[i] == "softmax"):
                             j = neuron
-                            c = np.where(y_true[out] == 1)[0][0]
-                            p = y_pred[out]
+                            c = y_true[out].index(1)
+                            # c = np.where(y_true[out] == 1)[0][0]
+                            p = y_pred[out][0]
                             error_term = calcErrorOutputSoftmax(p,j,c)
                         else:
                             error_term = calcErrorOutput(netH[out][neuron], y_true[out][neuron], self.array_activation[i])
-                        layer_err[out].append(error_term)
-                self.error_term.insert(0, layer_err)
+                        # layer_err[out].append(error_term)
+                        error_per_neuron.append(error_term)
+                    new_err.append(error_per_neuron)
+                self.error_term.insert(0, new_err)
+                layer_err = new_err
             else:
                 # for hidden layer
                 new_err = []
-                for out in range(len(netH)):
+                for out in range(len(netH)): # untuk setiap instance
                     error_per_neuron = []
                     for neuron in range(self.array_neuron_layer[i]):
                         # get neuron weight
@@ -118,14 +126,15 @@ class Backpropagation:
                             neuron_weight.append(weightPerLayer[idx_weight][neuron])
                         if (self.array_activation[i] == "softmax"):
                             j = neuron
-                            c = np.where(y_true[out] == 1)[0][0]
-                            p = y_pred[out] # output neuron
+                            c = y_true[out].index(1)
+                            # c = np.where(y_true[out] == 1)[0][0]
+                            p = y_pred[out][0] # output neuron
                             error_term = calcErrorHiddenSoftmax( neuron_weight, layer_err[out], p,j,c)
                         else:
                             error_term = calcErrorHidden(netH[out][neuron], neuron_weight, layer_err[out], self.array_activation[i])
+                        # print("Error term hidden", error_term)
                         error_per_neuron.append(error_term)
                     new_err.append(error_per_neuron)
-
                 self.error_term.insert(0, new_err)
                 # update layer error term di next layer
                 layer_err = new_err
@@ -133,7 +142,7 @@ class Backpropagation:
     """
     Fungsi untuk melatih model
     """
-    def backpropagation(self, X_train, y_train):
+    def backpropagation(self, X_train : List, y_train : List):
         # targetData = y asli yang sudah di encode
         inputData = X_train
         targetData = y_train
@@ -162,7 +171,7 @@ class Backpropagation:
             print("end of epoch")
             epoch += 1  
 
-    def predict(self, X_test):
+    def predict(self, X_test : List):
         # ASUMSI : dipanggil setelah fit
         # receive new observation (x_i .. x_n) and return the prediction y
         # use the forward alnorithm to predict the output
@@ -225,6 +234,17 @@ class Backpropagation:
     def updateWeight(self):
         sum_delta = [None for _ in range(len(self.weight_per_layer))]#probably still wrong initiate array length
         sum_delta_bias = [None for _ in range(len(self.bias_per_layer))]
+
+        print(len(self.error_term))
+        print(len(self.error_term[0]))
+        print(len(self.error_term[0][0]))
+        print(self.error_term[0][0])
+        for i in self.error_term[0][0]:
+            print(i)
+            print()
+        print("================")
+        print(self.error_term[self.n_layer-1][0])
+
         for idx_layer,layer in enumerate(self.error_term): # for every layer do update weight
             sum_delta[idx_layer] = [None for _ in range(len(self.weight_per_layer[idx_layer]))]#probably still wrong initiate array length
             sum_delta_bias[idx_layer] = [0 for _ in range(len(self.bias_per_layer[idx_layer]))]

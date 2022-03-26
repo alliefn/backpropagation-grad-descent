@@ -24,8 +24,11 @@ def main():
 
     # train model
     inputData = inputData["data"].tolist()
-    # backprop.backpropagation(inputData, target) nanti uncomment kalau update weight sudha benar
-    backprop.initWeightBiasRandom(inputData)
+    target = target.tolist()
+    print("tipe inputData", type(inputData))
+    print("tipe target", type(target))
+    backprop.backpropagation(inputData, target)
+    # backprop.initWeightBiasRandom(inputData)
     predicted = backprop.predict(inputData)
     print("Predicted Value")
     print(predicted)
