@@ -111,8 +111,10 @@ class Backpropagation:
     #             # self.bias_per_layer[i] = updateBias(
     #             #     self.bias_per_layer[i], d, self.learning_rate)
 
-    # menghitung error term untuk mini batch
-    # return error ter
+    """
+    Menghitung error term untuk mini batch
+    @return array 3 dimensi, dimensi pertama menandakan error term tiap layer untuk seluruh instance, dalam setiap layer baris menandakan instance ke-x, dan kolom menandakan neuron ke-y
+    """
     def calculateErrorTerm(self, y_true):
         """
         [DESC]
