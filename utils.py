@@ -105,7 +105,7 @@ def calcErrorOutputSoftmax(p : List, j : int, c : int):
 def calcErrorHiddenSoftmax (weight: List[float], nextErr: List[float], p : List, j : int, c : int):
     sigma = 0
     for i in range(len(nextErr)):
-        sigma += weight[i] *nextErr[i]
+        sigma += np.round(weight[i] *nextErr[i],5)
     return diffSoftmaxActvFunc(p,j,c) * sigma
 
 def calcErrorHidden(output:float, weight:List[float], nextErr:List[float], activation: str):

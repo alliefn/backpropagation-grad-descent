@@ -25,21 +25,23 @@ def main():
     # train model
     inputData = inputData["data"].tolist()
     target = target.tolist()
-    print("tipe inputData", type(inputData))
-    print("tipe target", type(target))
     backprop.backpropagation(inputData, target)
-    # backprop.initWeightBiasRandom(inputData)
+    
+    #print info
+    print("Info")
+    backprop.printModel()
+    print("-------------------------")
+
+    #print result
     predicted = backprop.predict(inputData)
     print("Predicted Value")
     print(predicted)
     print()
+
     # print score accuracy
     print("Score Accuracy")
     print(score_accuracy(predicted, target_unencoded))
     print()
-    print("Info")
-    backprop.printModel()
-    print("-------------------------")
         
 
 if __name__ == "__main__":
