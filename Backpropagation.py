@@ -176,14 +176,16 @@ class Backpropagation:
         epoch = 0
         error = np.inf
         self.initWeightBiasRandom(inputData)
+        print(self.weight_bias_layer)
         
         while(epoch < self.max_iter and (error > self.error_threshold)):
-            no_of_batches = int(len(inputData) / self.batch_size) # assumed batch size is factor of inputData
+            no_of_batches = int(len(inputData["data"]) / self.batch_size) # assumed batch size is factor of inputData
+            print(no_of_batches)
             error = 0
             for j in range(no_of_batches):
                 # instance["input"] = inputData["input"][row] --> [x1 ,x2 , x3]
                 # Feed forward mini batch
-                minibatchInput = inputData["input"][j*self.batch_size : (j+1)*self.batch_size]
+                minibatchInput = inputData["data"][j*self.batch_size : (j+1)*self.batch_size]
                 output_h = self.predictFeedForward(minibatchInput) 
                 
                 # start backprop
@@ -197,6 +199,7 @@ class Backpropagation:
                         error += pow(targetData[instance][neuron] - output_h[instance][neuron], 2)
             
             error = error / 2
+            print("end of epoch")
             epoch += 1  
 
     def predict(self, X_test):
@@ -212,7 +215,7 @@ class Backpropagation:
     # def fit(self, X_train, y_train):
 
     def initWeightBiasRandom(self, inputData):
-        col = len(inputData[0])
+        col = len(inputData["data"][0])
         # for input layer -> hidden layer
         for i in range(self.n_layer):
             biases, weights, weight_bias = initRandomBiasWeight(
@@ -261,13 +264,33 @@ class Backpropagation:
         return netH
 
     def updateWeight(self):
-        for layer,idx in enumerate(self.error_term): # for every layer do update weight
-            sumdelta = [0]*len(self.weight_per_layer[idx])#probably still wrong initiate array length
+        sum_delta = [None for _ in range(len(self.weight_per_layer))]#probably still wrong initiate array length
+        sum_delta_bias = [None for _ in range(len(self.bias_per_layer))]
+
+        for idx_layer,layer in enumerate(self.error_term): # for every layer do update weight
+            sum_delta[idx_layer] = [None for _ in range(len(self.weight_per_layer[idx_layer]))]#probably still wrong initiate array length
+            sum_delta_bias[idx_layer] = [0 for _ in range(len(self.bias_per_layer[idx_layer]))]
             for instance in layer: #for each instance get all delta
+
                 for i in range(len(instance)):
-                    sumdelta[i] += instance[i]*self.learning_rate*self.weight_per_layer[i]#assume weight and error have same coordinate
-            for i in range(len(self.weight_per_layer)): #add sum delta to update weight
-                self.weight_per_layer[i] += sumdelta[i]
+
+                    sum_delta[idx_layer][i] = [0 for _ in range(len(self.weight_per_layer[idx_layer][i]))]
+
+                    for j in range(len(self.weight_per_layer[idx_layer][i])):
+                        sum_delta[idx_layer][i][j] += instance[i]*self.learning_rate*self.weight_per_layer[idx_layer][i][j]#assume weight and error have same coordinate
+                        
+                    for j in range(len(self.bias_per_layer[idx_layer])):
+                        sum_delta_bias[idx_layer][j] += instance[i]*self.learning_rate*self.bias_per_layer[idx_layer][j]
+                    
+            for i in range(len(self.weight_per_layer[idx_layer])): #add sum delta to update weight
+                self.weight_per_layer[idx_layer][i] += sum_delta[idx_layer][i]
+                
+            for i in range(len(self.bias_per_layer[idx_layer])): #add sum delta to update weight
+                self.bias_per_layer[idx_layer][i] += sum_delta_bias[idx_layer][i]
+        
+        #sychronize weight bias layer
+        self.weight_bias_layer = np.array(self.weight_per_layer, copy=True)
+        self.weight_bias_layer = np.insert(self.weight_bias_layer, 0 , np.array(self.bias_per_layer), axis=0)
 
 
 
