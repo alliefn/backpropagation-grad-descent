@@ -17,7 +17,7 @@ def main():
     array_activation = ["sigmoid", "relu", 'sigmoid', "sigmoid","sigmoid","sigmoid", "softmax", "linear", "sigmoid", "sigmoid"]
     learning_rate = 0.001
     error_threshold = 1
-    max_iter = 300
+    max_iter = 3
     batch_size = 30
     # create model
     backprop = Backpropagation(n_layer = n_layer, array_neuron_layer=array_neuron_layer, array_activation=array_activation, learning_rate=learning_rate, error_threshold=error_threshold, max_iter=max_iter, batch_size=batch_size)

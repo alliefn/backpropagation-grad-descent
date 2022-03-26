@@ -163,11 +163,12 @@ class Backpropagation:
 
                 self.updateWeight()
 
-                for instance in range(len(inputData)):
+                for instance in range(len(output_h)):
                     for neuron in range(self.array_neuron_layer[-1]):
                         error += pow(targetData[instance][neuron] - output_h[instance][neuron], 2)
             
             error = error / 2
+            print("Error ", error)
             print("end of epoch")
             epoch += 1  
 
@@ -234,16 +235,6 @@ class Backpropagation:
     def updateWeight(self):
         sum_delta = [None for _ in range(len(self.weight_per_layer))]#probably still wrong initiate array length
         sum_delta_bias = [None for _ in range(len(self.bias_per_layer))]
-
-        print(len(self.error_term))
-        print(len(self.error_term[0]))
-        print(len(self.error_term[0][0]))
-        print(self.error_term[0][0])
-        for i in self.error_term[0][0]:
-            print(i)
-            print()
-        print("================")
-        print(self.error_term[self.n_layer-1][0])
 
         for idx_layer,layer in enumerate(self.error_term): # for every layer do update weight
             sum_delta[idx_layer] = [None for _ in range(len(self.weight_per_layer[idx_layer]))]#probably still wrong initiate array length
