@@ -310,3 +310,29 @@ class Backpropagation:
         print(self.weight_per_layer)
         print("Bias per layer ")
         print(self.bias_per_layer)
+
+    def print_hidden_layer(self):
+        for i in range(self.n_layer-1):
+            print("========================================================")
+            print("Hidden Layer-" + str(i+1) + " :")
+            print("Activation Function: " +
+                str(self.array_activation[i]))
+            print("Unit : " + str(self.array_neuron_layer[i]))
+            print("Weight: " + str(self.weight_per_layer[i]))
+            print("Weight Bias: " + str(self.bias_per_layer[i]))
+            print("")
+            
+    def print_output_layer(self):
+        i = self.n_layer-1
+        print("========================================================")
+        print("Output Layer : ")
+        print("Activation Function: " +
+            str(self.array_activation[i]))
+        print("Unit : " + str(self.array_neuron_layer[i]))
+        print("Weight: " + str(self.weight_per_layer[i]))
+        print("Weight Bias: " + str(self.bias_per_layer[i]))
+        print("")
+
+    def printModel(self):
+        self.print_hidden_layer()
+        self.print_output_layer()
