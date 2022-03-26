@@ -184,7 +184,7 @@ class Backpropagation:
                 # instance["input"] = inputData["input"][row] --> [x1 ,x2 , x3]
                 # Feed forward mini batch
                 minibatchInput = inputData["input"][j*self.batch_size : (j+1)*self.batch_size]
-                netH = self.predictFeedForward(minibatchInput) 
+                output_h = self.predictFeedForward(minibatchInput) 
                 
                 # start backprop
                 # calculate error term
@@ -194,7 +194,7 @@ class Backpropagation:
 
                 for instance in range(len(inputData)):
                     for neuron in range(self.array_neuron_layer[-1]):
-                        error += pow(targetData[instance][neuron] - netH[instance][neuron], 2)
+                        error += pow(targetData[instance][neuron] - output_h[instance][neuron], 2)
             
             error = error / 2
             epoch += 1  
