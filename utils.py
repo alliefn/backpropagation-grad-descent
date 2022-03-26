@@ -152,3 +152,12 @@ def processCSV(filePath):
     return_value["output"] = target
     return return_value
         
+def score_accuracy(predicted : List, target: List):
+    if (len(predicted) != len(target)):
+        return 0
+    else:
+        count = 0
+        for i in range(len(predicted)):
+            if (predicted[i] == target[i]):
+                count += 1
+        return count / len(predicted)

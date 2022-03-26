@@ -75,42 +75,6 @@ class Backpropagation:
 
         return
 
-    # def backpropagation(self, inputData, targetData):
-    #     # receive input data and target data
-    #     # use the backpropagation algorithm to update the weight and bias
-    #     # use the forward algorithm to predict the output
-
-    #     # Perform Forward propagation or Forward pass to calculate
-    #     # Activation values of neurons in each layer.
-    #     netH = self.predictFeedForward(inputData)
-
-    #     # Backpropagation algorithm
-    #     # calculate delta
-    #     for i in range(self.n_layer - 1, 0, -1):
-    #         if i == self.n_layer - 1:
-    #             # for output layer
-    #             # calculate error
-    #             e = calcError(netH, targetData)
-    #             # calculate delta
-    #             d = calcDelta(self.array_activation[i], netH, targetData)
-    #             # # update weight and bias
-    #             # self.weight_per_layer[i] = updateWeight(
-    #             #     self.weight_per_layer[i], d, self.learning_rate)
-    #             # self.bias_per_layer[i] = updateBias(
-    #             #     self.bias_per_layer[i], d, self.learning_rate)
-    #         else:
-    #             # for hidden layer
-    #             # calculate error
-    #             e = calcError(netH, self.output_per_layer[i + 1])
-    #             # calculate delta
-    #             d = calcDelta(
-    #                 self.array_activation[i], netH, self.output_per_layer[i + 1])
-    #             # # update weight
-    #             # self.weight_per_layer[i] = updateWeight(
-    #             #     self.weight_per_layer[i], d, self.learning_rate)
-    #             # self.bias_per_layer[i] = updateBias(
-    #             #     self.bias_per_layer[i], d, self.learning_rate)
-
     """
     Menghitung error term untuk mini batch
     @return array 3 dimensi, dimensi pertama menandakan error term tiap layer untuk seluruh instance, dalam setiap layer baris menandakan instance ke-x, dan kolom menandakan neuron ke-y
@@ -231,7 +195,6 @@ class Backpropagation:
         self.output_per_layer = []
         self.net_per_layer = []
         # X input as matrix
-        print(type(inputData))
         for item in inputData: # before = inputData["input"]
             item.insert(0, 1)  # Insert 1 for bias at every input intance
         inputMatrix = np.matrix(inputData) # before = inputData["input"]
