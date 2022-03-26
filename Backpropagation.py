@@ -162,9 +162,13 @@ class Backpropagation:
                 # update layer error term di next layer
                 layer_err = new_err
         
-
-    def backpropagation(self, inputData, targetData):
+    """
+    Fungsi untuk melatih model
+    """
+    def backpropagation(self, X_train, y_train):
         # targetData = y asli yang sudah di encode
+        inputData = X_train
+        targetData = y_train
         epoch = 0
         error = np.inf
         self.initWeightBiasRandom(inputData)
@@ -173,11 +177,6 @@ class Backpropagation:
             no_of_batches = int(len(inputData) / self.batch_size) # assumed batch size is factor of inputData
             error = 0
             for j in range(no_of_batches):
-
-                # # Initialize delta
-                # delta = []
-                # deltaBias = []
-
                 # instance["input"] = inputData["input"][row] --> [x1 ,x2 , x3]
                 # Feed forward mini batch
                 minibatchInput = inputData["input"][j*self.batch_size : (j+1)*self.batch_size]
@@ -186,24 +185,6 @@ class Backpropagation:
                 # start backprop
                 # calculate error term
                 self.calculateErrorTerm(targetData)
-
-                # # Calculate delta
-                # delta.append(calcDelta(
-                #     self.array_activation[self.n_layer - 1], netH, targetData[row]))
-                    
-                # # Calculate delta bias
-                # deltaBias.append(calcDelta(
-                #     self.array_activation[self.n_layer - 1], netH, targetData[row]))
-    
-                # # Update weight and bias with its delta value, learning rate and batch size
-                # # delta and deltaBias is an array, so we need to iterate through it
-                # for i in range(len(delta)):
-
-                #     self.weight_per_layer[i] = updateWeight(
-                #         self.weight_per_layer[i], delta[i], self.learning_rate, self.batch_size)
-
-                #     self.bias_per_layer[i] = updateBias(
-                #         self.bias_per_layer[i], deltaBias[i], self.learning_rate, self.batch_size)
 
                 self.updateWeight()
 
@@ -214,27 +195,17 @@ class Backpropagation:
             error = error / 2
             epoch += 1  
 
-    def predict(self, inputData):
+    def predict(self, X_test):
+        # ASUMSI : dipanggil setelah fit
         # receive new observation (x_i .. x_n) and return the prediction y
         # use the forward alnorithm to predict the output
-        self.initWeightBiasRandom(inputData)
-        # forward algorithm
-        netH = self.predictFeedForward(inputData)
-        # starts the backpropagation algorithm
-        # backpropagation algorithm
-        # while threshold not reached, continue
-        epoch = 0
-        while (self.mse > self.error_threshold and epoch < self.max_iter ):
-            
-            # Mini batch backpropagation
-            for i in range(0, len(inputData["input"]), self.batch_size):
-                # get the mini batch
-                mini_batch = inputData["input"][i:i+self.batch_size]
-                # forward algorithm
-                netH = self.predictFeedForward(mini_batch)
-                # backpropagation algorithm
-                self.backpropagation(mini_batch, netH)
-            epoch += 1
+        predictedValue = self.predictFeedForward(X_test).tolist()
+    
+        # encode predicted result
+        return [ predictedValue[x].index(max(predictedValue[x])) for x in range(len(X_test))]
+
+        
+    # def fit(self, X_train, y_train):
 
     def initWeightBiasRandom(self, inputData):
         col = len(inputData[0])
