@@ -142,7 +142,7 @@ class Backpropagation:
                 # for hidden layer
                 new_err = []
                 for out in range(len(netH)):
-                    new_err.append([])
+                    error_per_neuron = []
                     for neuron in range(self.array_neuron_layer[i]):
                         # get neuron weight
                         neuron_weight = []
@@ -154,10 +154,12 @@ class Backpropagation:
                             j = neuron
                             c = np.where(y_true[out] == 1)[0][0]
                             p = y_pred[out] # output neuron
-                            error_term = calcErrorHiddenSoftmax( weightPerLayer, layer_err[out], p,j,c)
+                            error_term = calcErrorHiddenSoftmax( neuron_weight, layer_err[out], p,j,c)
                         else:
-                            error_term = calcErrorHidden(netH[out][neuron], weightPerLayer, layer_err[out], self.array_activation[i])
-                        new_err[out].append(error_term)
+                            error_term = calcErrorHidden(netH[out][neuron], neuron_weight, layer_err[out], self.array_activation[i])
+                        error_per_neuron.append(error_term)
+                    new_err.append(error_per_neuron)
+
                 self.error_term.insert(0, new_err)
                 # update layer error term di next layer
                 layer_err = new_err
