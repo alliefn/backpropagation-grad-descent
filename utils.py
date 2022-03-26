@@ -99,6 +99,15 @@ def calcErrorOutput(net:float, target:float, activation: str):
 
     return diffSigmoidActvFunc(net) * (target - sigmoid(net))
 
+def calcErrorOutputSoftmax(p : List, j : int, c : int):
+    return diffSoftmaxActvFunc(p,j,c) * diffLossFuncCrossEntropy(p,j)
+
+def calcErrorHiddenSoftmax (weight: List[float], nextErr: List[float], p : List, j : int, c : int):
+    sigma = 0
+    for i in range(len(nextErr)):
+        sigma += weight[i] *nextErr[i]
+    return diffSoftmaxActvFunc(p,j,c) * sigma
+
 def calcErrorHidden(output:float, weight:List[float], nextErr:List[float], activation: str):
     sigma = 0
     for i in range(len(nextErr)):
@@ -109,8 +118,6 @@ def calcErrorHidden(output:float, weight:List[float], nextErr:List[float], activ
         return diffLinearActvFunc(output) * sigma
     elif (activation == "relu"):
         return diffReluActvFunc(output) * sigma
-    # elif (activation == "softmax"):
-    #     return diffSoftmaxActvFunc(output, target) * (target - softmax(net))
     return output * (1-output) * sigma
 
 # update weight for batch size of N

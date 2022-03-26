@@ -15,7 +15,7 @@ class Backpropagation:
     batch_size : ukuran batch yang dikerjakan tiap epoch (?) [INT]
     output_per_layer : Nilai result dari setiap layer [Array of array of NUM]
     weight_per_layer : 
-    bias_per_layer : 
+    bias_per_layer : Weight bias dari tiap neuron
     
     '''
 
@@ -119,16 +119,24 @@ class Backpropagation:
         Menghitung error term untuk mini batch
         """
         self.error_term = []
+        
         # start backprop
         layer_err = []
         for i in range(self.n_layer - 1, -1, -1):
+            y_pred = np.asarray(self.output_per_layer[i])
             netH = np.asarray(self.net_per_layer[i])
             if i == self.n_layer - 1:
                 for out in range(len(netH)):
                     layer_err.append([])
                     for neuron in range(self.array_neuron_layer[i]):
-                        error_term = calcErrorOutput(netH[out][neuron], y_true[out][neuron], self.array_activation[i])
-                        layer_err[out].append(error_term)
+                        if (self.array_activation[i] == "softmax"):
+                            j = neuron
+                            c = np.where(y_true[out] == 1)[0][0]
+                            p = y_pred[out]
+                            error_term = calcErrorOutputSoftmax(p,j,c)
+                        else:
+                            error_term = calcErrorOutput(netH[out][neuron], y_true[out][neuron], self.array_activation[i])
+                            layer_err[out].append(error_term)
                 self.error_term.insert(0, layer_err)
             else:
                 # for hidden layer
@@ -139,9 +147,16 @@ class Backpropagation:
                         # get neuron weight
                         neuron_weight = []
                         weightPerLayer = self.weight_per_layer[i+1]
+                        # separate value weight for each neuron
                         for idx_weight in range (len(weightPerLayer)):
                             neuron_weight.append(weightPerLayer[idx_weight][neuron])
-                        error_term = calcErrorHidden(netH[out][neuron], weightPerLayer, layer_err[out], self.array_activation[i])
+                        if (self.array_activation[i] == "softmax"):
+                            j = neuron
+                            c = np.where(y_true[out] == 1)[0][0]
+                            p = y_pred[out] # output neuron
+                            error_term = calcErrorHiddenSoftmax( weightPerLayer, layer_err[out], p,j,c)
+                        else:
+                            error_term = calcErrorHidden(netH[out][neuron], weightPerLayer, layer_err[out], self.array_activation[i])
                         new_err[out].append(error_term)
                 self.error_term.insert(0, new_err)
                 # update layer error term di next layer

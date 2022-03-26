@@ -1,4 +1,5 @@
 from activation_functions import *
+import numpy as np
 
 def diffLinearActvFunc(x):
     # return 1 if >= 0 else 0
@@ -30,12 +31,12 @@ def difflossFuncSumofSquaredErrors(y, y_hat):
     return y - y_hat
 
 # lossfunction for softmax: E = -log(p_c)
-def lossFuncCrossEntropy(p, j):
-    # [DESC]
-    # Lossfunction for softmax
-    # p is the probability
-    # j is the neuron index
-    return -log(p[j])
+# def lossFuncCrossEntropy(p, j):
+#     # [DESC]
+#     # Lossfunction for softmax
+#     # p is the probability
+#     # j is the neuron index
+#     return -log(p[j])
 
 # derivative of lossfunction for softmax
 def diffLossFuncCrossEntropy(p, j):
@@ -43,7 +44,8 @@ def diffLossFuncCrossEntropy(p, j):
     # Derivative of lossfunction for softmax
     # p is the probability
     # j is the neuron index
-    return -(1/(p[j]*ln(10)))
+    return -(1/(p[j] * np.log(10)))
+
 
 def outputActivationFunc(t,o,x,j,i):
     # [DESC]
