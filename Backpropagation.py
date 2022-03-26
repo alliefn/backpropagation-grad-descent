@@ -176,16 +176,14 @@ class Backpropagation:
         epoch = 0
         error = np.inf
         self.initWeightBiasRandom(inputData)
-        print(self.weight_bias_layer)
-        
         while(epoch < self.max_iter and (error > self.error_threshold)):
-            no_of_batches = int(len(inputData["data"]) / self.batch_size) # assumed batch size is factor of inputData
-            print(no_of_batches)
+            no_of_batches = int(len(inputData) / self.batch_size) # assumed batch size is factor of inputData
             error = 0
             for j in range(no_of_batches):
                 # instance["input"] = inputData["input"][row] --> [x1 ,x2 , x3]
                 # Feed forward mini batch
-                minibatchInput = inputData["data"][j*self.batch_size : (j+1)*self.batch_size]
+                minibatchInput = inputData[j*self.batch_size : (j+1)*self.batch_size]
+            
                 output_h = self.predictFeedForward(minibatchInput) 
                 
                 # start backprop
@@ -215,7 +213,7 @@ class Backpropagation:
     # def fit(self, X_train, y_train):
 
     def initWeightBiasRandom(self, inputData):
-        col = len(inputData["data"][0])
+        col = len(inputData[0])
         # for input layer -> hidden layer
         for i in range(self.n_layer):
             biases, weights, weight_bias = initRandomBiasWeight(
@@ -233,6 +231,7 @@ class Backpropagation:
         self.output_per_layer = []
         self.net_per_layer = []
         # X input as matrix
+        print(type(inputData))
         for item in inputData: # before = inputData["input"]
             item.insert(0, 1)  # Insert 1 for bias at every input intance
         inputMatrix = np.matrix(inputData) # before = inputData["input"]
@@ -283,6 +282,8 @@ class Backpropagation:
                         sum_delta_bias[idx_layer][j] += instance[i]*self.learning_rate*self.bias_per_layer[idx_layer][j]
                     
             for i in range(len(self.weight_per_layer[idx_layer])): #add sum delta to update weight
+                print(type(self.weight_per_layer[idx_layer][i]))
+                print(sum_delta[idx_layer][i])
                 self.weight_per_layer[idx_layer][i] += sum_delta[idx_layer][i]
                 
             for i in range(len(self.bias_per_layer[idx_layer])): #add sum delta to update weight
@@ -326,6 +327,16 @@ class Backpropagation:
         i = self.n_layer-1
         print("========================================================")
         print("Output Layer : ")
+        print("Activation Function: " +
+            str(self.array_activation[i]))
+        print("Unit : " + str(self.array_neuron_layer[i]))
+        print("Weight: " + str(self.weight_per_layer[i]))
+        print("Weight Bias: " + str(self.bias_per_layer[i]))
+        print("")
+
+    def print_layer(self, i) :
+        print("========================================================")
+        print("Hidden Layer-" + str(i+1) + " :")
         print("Activation Function: " +
             str(self.array_activation[i]))
         print("Unit : " + str(self.array_neuron_layer[i]))

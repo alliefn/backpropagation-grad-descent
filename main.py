@@ -9,13 +9,14 @@ def main():
     encoder = OneHotEncoder(sparse=False)
     reshape = inputData["target"].reshape(len(inputData["target"]), 1)
     target = encoder.fit_transform(reshape)
-    
     backprop = Backpropagation(n_layer = 10, array_neuron_layer=[6,6,6,6,6,6,6,6,6,3], array_activation=["sigmoid", "relu", 'sigmoid', "sigmoid","sigmoid","sigmoid", "softmax", "linear", "sigmoid", "sigmoid"], learning_rate=0.01, error_threshold=1, max_iter=300, batch_size=30)
 
-    backprop.backpropagation(inputData, target)
+    # inputData = readFile("model/input.json")
+
+    backprop.backpropagation(inputData["data"].tolist(), target)
 
     print("Info")
-    backprop.printInfo()
+    backprop.printModel()
     print("-------------------------")
         
 
