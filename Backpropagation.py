@@ -64,14 +64,23 @@ class Backpropagation:
 
         hiddenLayers.append(outputLayer)
 
-        self.n_layer = len(hiddenLayers) + 1
-        self.neuron_per_layer = [len(layer["weight"])
+        print(hiddenLayers)
+
+        self.n_layer = len(hiddenLayers)
+        self.array_neuron_layer = [len(layer["weight"])
                                  for layer in hiddenLayers]
         self.array_activation = [layer["activation_function"]
                                  for layer in hiddenLayers]
-        self.weight_per_layer = [layer["weight"][1:]
-                                 for layer in hiddenLayers]
-        self.bias_per_layer = [layer["weight"][0]
+        matrix = []
+        for layer in hiddenLayers:
+            layerweight = []
+            for neuron in layer["weight"]:
+                layerweight.append(neuron[1:])
+            matrix.append(layerweight)
+
+        self.weight_per_layer = np.ndarray(matrix)
+
+        self.bias_per_layer = [layer["bias"]
                                for layer in hiddenLayers]
 
         return
@@ -163,7 +172,6 @@ class Backpropagation:
                 self.calculateErrorTerm(targetData)
 
                 self.updateWeight()
-
                 
                 for instance in range(len(output_h)):
                     for neuron in range(self.array_neuron_layer[-1]):
@@ -171,14 +179,19 @@ class Backpropagation:
                         # print("selisih ", targetData[instance][neuron] - output_h[instance][neuron])
             
             error = error / 2
-            # print("Error ", error)
+            print("---------------------")
+            print("At Epoch", epoch ,"Error : ", error)
+            # self.debug()
+            print("---------------------")
             epoch += 1  
 
     def predict(self, X_test : List):
         # ASUMSI : dipanggil setelah fit
         # receive new observation (x_i .. x_n) and return the prediction y
         # use the forward alnorithm to predict the output
-        predictedValue = self.predictFeedForward(X_test).tolist()
+        result = self.predictFeedForward(X_test)
+        print(result)
+        predictedValue = result.tolist()
     
         # encode predicted result
         return [ predictedValue[x].index(max(predictedValue[x])) for x in range(len(X_test))]
@@ -251,8 +264,7 @@ class Backpropagation:
                     for j in range(len(self.weight_per_layer[idx_layer][i])):
                         sum_delta[idx_layer][i][j] += np.round(instance[i]*self.learning_rate*self.output_per_layer[idx_layer].item(j),5)
                         
-                    for j in range(len(self.bias_per_layer[idx_layer])):
-                        sum_delta_bias[idx_layer][j] += np.round(instance[i]*self.learning_rate*1,5)
+                    sum_delta_bias[idx_layer][i] += np.round(instance[i]*self.learning_rate*1,5)
                 
             for i in range(len(self.bias_per_layer[idx_layer])): #add sum delta to update weight
                 self.bias_per_layer[idx_layer][i] += sum_delta_bias[idx_layer][i]
@@ -320,3 +332,7 @@ class Backpropagation:
     def printModel(self):
         self.print_hidden_layer()
         self.print_output_layer()
+
+    def debug(self):
+        print("Error Term: ", self.error_term)
+        self.printModel()
