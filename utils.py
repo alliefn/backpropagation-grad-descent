@@ -161,3 +161,70 @@ def score_accuracy(predicted : List, target: List):
             if (predicted[i] == target[i]):
                 count += 1
         return count / len(predicted)
+
+def confusion_matrix(predicted : List, target: List):
+    # Create a confusion matrix
+    list_of_class = []
+    # Iterate over the target list, get unique classes
+    for i in range(len(target)):
+        if target[i] not in list_of_class:
+            list_of_class.append(target[i])
+    # If the number of classes is 2, create 2x2 matrix
+    if len(list_of_class) == 2:
+        matrix = [[0,0],[0,0]]
+        for i in range(len(predicted)):
+            if predicted[i] == target[i]:
+                if predicted[i] == list_of_class[0]:
+                    matrix[0][0] += 1
+                else:
+                    matrix[1][1] += 1
+            else:
+                if predicted[i] == list_of_class[0]:
+                    matrix[0][1] += 1
+                else:
+                    matrix[1][0] += 1
+        return matrix
+    else:
+        # If the number of classes is more than 2, create nxn matrix
+        matrix = [[0 for i in range(len(list_of_class))] for j in range(len(list_of_class))]
+        for i in range(len(predicted)):
+            # Get the index of the predicted class
+            index_predicted = list_of_class.index(predicted[i])
+            # Get the index of the target class
+            index_target = list_of_class.index(target[i])
+            # Increment the matrix
+            matrix[index_predicted][index_target] += 1
+        return matrix
+
+def confusion_matrix_statistics(matrix):
+    # If its 2x2 matrix...
+    if len(matrix) == 2:
+        # Calculate the accuracy
+        accuracy = (matrix[0][0] + matrix[1][1]) / (matrix[0][0] + matrix[1][1] + matrix[0][1] + matrix[1][0])
+        # Calculate the precision
+        precision = matrix[0][0] / (matrix[0][0] + matrix[0][1])
+        # Calculate the recall
+        recall = matrix[0][0] / (matrix[0][0] + matrix[1][0])
+        # Calculate the F1 score
+        f1_score = 2 * precision * recall / (precision + recall)
+        return [accuracy, precision, recall, f1_score]
+    else:
+        # If its nxn matrix...
+        # Calculate the accuracy
+        accuracy = 0
+        for i in range(len(matrix)):
+            accuracy += matrix[i][i] / sum(matrix[i])
+        accuracy /= len(matrix)
+        # Calculate the precision
+        precision = 0
+        for i in range(len(matrix)):
+            precision += matrix[i][i] / sum(matrix[i])
+        precision /= len(matrix)
+        # Calculate the recall
+        recall = 0
+        for i in range(len(matrix)):
+            recall += matrix[i][i] / sum(matrix[i])
+        recall /= len(matrix)
+        # Calculate the F1 score
+        f1_score = 2 * precision * recall / (precision + recall)
+        return [accuracy, precision, recall, f1_score]
