@@ -1,9 +1,16 @@
 import json
+from json import JSONEncoder
 import numpy as np
 from activation_functions import *
 from utils import *
 import copy
 
+
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
 
 class Backpropagation:
     '''
@@ -336,3 +343,39 @@ class Backpropagation:
     def debug(self):
         print("Error Term: ", self.error_term)
         self.printModel()
+
+    def saveModel(self, filename):
+        data = {
+            "n_layer": self.n_layer,
+            "array_neuron_layer": self.array_neuron_layer,
+            "array_activation": self.array_activation,
+            "learning_rate": self.learning_rate,
+            "error_threshold": self.error_threshold,
+            "max_iter": self.max_iter,
+            "batch_size": self.batch_size,
+            "weight_per_layer": json.dumps(self.weight_per_layer, cls=NumpyArrayEncoder),
+            "bias_per_layer":  json.dumps(self.bias_per_layer, cls=NumpyArrayEncoder), 
+            "weight_bias_layer": json.dumps(self.weight_bias_layer, cls=NumpyArrayEncoder),
+            "net_per_layer":json.dumps(self.net_per_layer, cls=NumpyArrayEncoder), 
+            "output_per_layer": json.dumps(self.output_per_layer, cls=NumpyArrayEncoder),
+        }
+        with open(filename, 'w') as outfile:
+            json.dump(data, outfile)
+
+    def loadModels(self, filename):
+        with open(filename, 'r') as f:
+            data = json.load(f)
+        np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)                 
+        self.n_layer = data["n_layer"]
+        self.array_neuron_layer = data["array_neuron_layer"]
+        self.array_activation = data["array_activation"]
+        self.learning_rate = data["learning_rate"]
+        self.error_threshold = data["error_threshold"]
+        self.max_iter = data["max_iter"]
+        self.batch_size = data["batch_size"]
+
+        self.weight_per_layer = np.asarray(json.loads(data["weight_per_layer"]))
+        self.bias_per_layer = np.asarray(json.loads(data["bias_per_layer"]))
+        self.weight_bias_layer = np.asarray(json.loads(data["weight_bias_layer"])) 
+        self.net_per_layer = np.asarray(json.loads(data["net_per_layer"])) 
+        self.output_per_layer =np.asarray(json.loads(data["output_per_layer"]))  

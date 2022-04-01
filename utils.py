@@ -8,6 +8,8 @@ from differentialActvFunc import *
 
 
 def initRandomBiasWeight(row, col):
+    # np seed
+    np.random.seed(42069)
     weights = np.random.randn(row, col)  # generates random 2d array weight
     biases = [0 for _ in range(len(weights))]
     result = weights  # return array 2d with first col is bias and the rest are weights

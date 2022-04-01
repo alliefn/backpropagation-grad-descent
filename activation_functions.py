@@ -1,7 +1,8 @@
-from numpy import exp
+from numpy import exp, clip
 
 
 def sigmoid(x):
+    x = clip(x,-500,500)
     return 1 / (1 + exp(-x))
 
 
@@ -14,4 +15,5 @@ def relu(x):
 
 
 def softmax(x):
+    x = clip(x,-500,500)
     return exp(x) / exp(x).sum()
