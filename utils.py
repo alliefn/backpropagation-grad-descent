@@ -210,21 +210,28 @@ def confusion_matrix_statistics(matrix):
         return [accuracy, precision, recall, f1_score]
     else:
         # If its nxn matrix...
+        # Calculate TP, TN, FP, FN for each class
+        tp = []
+        tn = []
+        fp = []
+        fn = []
+        for i in range(len(matrix)):
+            tp.append(matrix[i][i])
+            tn_sum = 0
+            fp_sum = 0
+            for j in range(len(matrix)):
+                if i != j:
+                    tn_sum += matrix[j][j]
+                    fp_sum += matrix[i][j]
+            tn.append(tn_sum)
+            fp.append(fp_sum)
+            fn.append(sum(matrix[i]) - tp[i])
         # Calculate the accuracy
-        accuracy = 0
-        for i in range(len(matrix)):
-            accuracy += matrix[i][i] / sum(matrix[i])
-        accuracy /= len(matrix)
+        accuracy = (sum(tp) + sum(tn)) / (sum(tp) + sum(tn) + sum(fp) + sum(fn))
         # Calculate the precision
-        precision = 0
-        for i in range(len(matrix)):
-            precision += matrix[i][i] / sum(matrix[i])
-        precision /= len(matrix)
+        precision = sum(tp) / (sum(tp) + sum(fp))
         # Calculate the recall
-        recall = 0
-        for i in range(len(matrix)):
-            recall += matrix[i][i] / sum(matrix[i])
-        recall /= len(matrix)
+        recall = sum(tp) / (sum(tp) + sum(fn))
         # Calculate the F1 score
         f1_score = 2 * precision * recall / (precision + recall)
         return [accuracy, precision, recall, f1_score]
