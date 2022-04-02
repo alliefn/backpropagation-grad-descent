@@ -1,5 +1,4 @@
-from numpy import exp, clip
-
+from numpy import exp, clip, sum, sqrt
 
 def sigmoid(x):
     x = clip(x,-500,500)

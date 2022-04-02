@@ -4,15 +4,15 @@ import csv
 from activation_functions import *
 from typing import List
 from differentialActvFunc import *
+import copy
 # row get from number of neuron in that layer, and col determined from n neuron before this layer
 
 
 def initRandomBiasWeight(row, col):
-    # np seed
-    np.random.seed(42069)
-    weights = np.random.randn(row, col)  # generates random 2d array weight
+    weights = np.random.randn(row, col) * np.sqrt(1/col)  # generates random 2d array weight
+    # weights = np.random.uniform(low=-0.1, high=0.1, size=(row,col))
     biases = [0 for _ in range(len(weights))]
-    result = weights  # return array 2d with first col is bias and the rest are weights
+    result = copy.deepcopy(weights)  # return array 2d with first col is bias and the rest are weights
     result = np.insert(result, 0, biases, axis=1)
 
     return biases, weights, result

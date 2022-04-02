@@ -1,10 +1,12 @@
+from turtle import back
 from utils import *
 from Backpropagation import *
 from sklearn.datasets import load_iris
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.utils import shuffle
 
 def main():
-    # load iris data
+   # load iris data
     inputData = load_iris()
     target_unencoded = inputData.target
     encoder = OneHotEncoder(sparse=False)
@@ -12,19 +14,32 @@ def main():
     target = encoder.fit_transform(reshape)
 
     # Define parameters
-    n_layer = 10
-    array_neuron_layer = [6,6,6,6,6,6,6,6,6,3]
-    array_activation = ["sigmoid", "sigmoid", 'sigmoid', "sigmoid","sigmoid","sigmoid", "sigmoid", "sigmoid", "sigmoid", "sigmoid"]
+    n_layer = 5
+    array_neuron_layer = [16,8,4, 3,3]
+    array_activation = ["linear", "relu", 'linear', "relu", "sigmoid"]
     learning_rate = 0.001
-    error_threshold = 1
-    max_iter = 300
-    batch_size = 30
+    error_threshold = 0.01
+    max_iter = 500
+    batch_size = 1
     # create model
     backprop = Backpropagation(n_layer = n_layer, array_neuron_layer=array_neuron_layer, array_activation=array_activation, learning_rate=learning_rate, error_threshold=error_threshold, max_iter=max_iter, batch_size=batch_size)
-
+    
     # train model
     inputData = inputData["data"].tolist()
     target = target.tolist()
+
+    # class_0_input = inputData[0:40]
+    # class_0_target = target[0:40]
+    # class_1_input = inputData[50:90]
+    # class_1_target = target[50:90]
+    # class_2_input = inputData[95:140]
+    # class_2_target = target[95:140]
+
+    
+
+    inputData, target, target_unencoded = shuffle(inputData, target, target_unencoded)
+    print(inputData)
+    print(target)
     backprop.backpropagation(inputData, target)
     
     #print info
@@ -36,7 +51,14 @@ def main():
     predicted = backprop.predict(inputData)
     print("Predicted Value")
     print(predicted)
-    print()
+    print("Real Value")
+    print(target_unencoded)
+
+    print("================= NET H ======================")
+    for i in range(backprop.n_layer):
+        print("Net per layer: ", backprop.net_per_layer[i])
+        print("Output  per layer")
+        print(backprop.output_per_layer[i])
 
     # print score accuracy
     print("Score Accuracy")

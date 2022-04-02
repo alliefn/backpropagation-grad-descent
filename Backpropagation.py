@@ -1,6 +1,7 @@
 import json
 from json import JSONEncoder
 import numpy as np
+from sklearn.utils import shuffle
 from activation_functions import *
 from utils import *
 import copy
@@ -70,7 +71,7 @@ class Backpropagation:
         for i in range(len(outputLayer["bias"])):
             outputLayer["weight"][i].insert(0, outputLayer["bias"][i])
 
-        hiddenLayers.append(outputLayer)
+        hiddenLayers.append(copy.deepcopy(outputLayer))
 
         print(hiddenLayers)
 
@@ -83,8 +84,8 @@ class Backpropagation:
         for layer in hiddenLayers:
             layerweight = []
             for neuron in layer["weight"]:
-                layerweight.append(neuron[1:])
-            matrix.append(layerweight)
+                layerweight.append(copy.deepcopy(neuron[1:]))
+            matrix.append(copy.deepcopy(layerweight))
 
         self.weight_per_layer = np.ndarray(matrix)
 
@@ -125,8 +126,8 @@ class Backpropagation:
                         else:
                             error_term = calcErrorOutput(netH[out][neuron], y_true[out][neuron], self.array_activation[i])
                         # layer_err[out].append(error_term)
-                        error_per_neuron.append(error_term)
-                    new_err.append(error_per_neuron)
+                        error_per_neuron.append(copy.deepcopy(error_term))
+                    new_err.append(copy.deepcopy(error_per_neuron))
                 self.error_term.insert(0, new_err)
                 layer_err = new_err
             else:
@@ -140,7 +141,7 @@ class Backpropagation:
                         weightPerLayer = self.weight_per_layer[i+1]
                         # separate value weight for each neuron
                         for idx_weight in range (len(weightPerLayer)):
-                            neuron_weight.append(weightPerLayer[idx_weight][neuron])
+                            neuron_weight.append(copy.deepcopy(weightPerLayer[idx_weight][neuron]))
                         if (self.array_activation[i] == "softmax"):
                             j = neuron
                             c = y_true[out].index(1)
@@ -150,8 +151,8 @@ class Backpropagation:
                         else:
                             error_term = calcErrorHidden(netH[out][neuron], neuron_weight, layer_err[out], self.array_activation[i])
                         # print("Error term hidden", error_term)
-                        error_per_neuron.append(error_term)
-                    new_err.append(error_per_neuron)
+                        error_per_neuron.append(copy.deepcopy(error_term))
+                    new_err.append(copy.deepcopy(error_per_neuron))
                 self.error_term.insert(0, new_err)
                 # update layer error term di next layer
                 layer_err = new_err
@@ -165,9 +166,11 @@ class Backpropagation:
         targetData = y_train
         epoch = 0
         error = np.inf
+        np.random.seed(499)
         self.initWeightBiasRandom(inputData)
+        inputData, targetData = shuffle(inputData, targetData)
         while(epoch < self.max_iter and (error > self.error_threshold)):
-            
+
             no_of_batches = int(len(inputData) / self.batch_size) # assumed batch size is factor of inputData
             error = 0
             for j in range(no_of_batches):
@@ -177,7 +180,7 @@ class Backpropagation:
                 output_h = self.predictFeedForward(minibatchInput) 
                 # start backprop
                 # calculate error term
-                self.calculateErrorTerm(targetData)
+                self.calculateErrorTerm(targetData[j*self.batch_size : (j+1)*self.batch_size])
 
                 self.updateWeight()
                 
@@ -188,7 +191,6 @@ class Backpropagation:
             error = error / 2
             print("---------------------")
             print("At Epoch", epoch ,"Error : ", error)
-            # self.debug()
             print("---------------------")
             epoch += 1  
 
@@ -209,14 +211,12 @@ class Backpropagation:
         for i in range(self.n_layer):
             biases, weights, weight_bias = initRandomBiasWeight(
                 self.array_neuron_layer[i], col)
-            self.bias_per_layer.append(biases)
-            self.weight_per_layer.append(weights)
-            self.weight_bias_layer.append(weight_bias)
+            self.bias_per_layer.append(copy.deepcopy(biases))
+            self.weight_per_layer.append(copy.deepcopy(weights))
+            self.weight_bias_layer.append(copy.deepcopy(weight_bias))
             # jumlah neuron dari layer sebelumnya
             col = self.array_neuron_layer[i]
 
-    # input Data =  [ [x1, x2, x3, x4], [x1, x2, x3, x4], [x1, x2, x3, x4] ]
-    # netH = 2d, setiap baris menandakan data ke-i
     def predictFeedForward(self, inputData):
         # reset output per layer
         self.output_per_layer = []
@@ -229,12 +229,12 @@ class Backpropagation:
         # for input layer -> hidden layer
         for i in range(self.n_layer):
 
-            self.input_per_layer.append(inputMatrix)
+            self.input_per_layer.append(copy.deepcopy(inputMatrix))
 
             neuronLayerMatrix = np.matrix(self.weight_bias_layer[i]).astype(float)
             # Start of looping each layer
             netH = calcNet(inputMatrix, neuronLayerMatrix)
-            self.net_per_layer.append(netH)
+            self.net_per_layer.append(copy.deepcopy(netH))
             # calculate h using activation func
             m, n = netH.shape
             for r in range(m):
@@ -244,14 +244,14 @@ class Backpropagation:
                         self.array_activation[i], a))
 
             # save output per layer
-            self.output_per_layer.append(netH)
+            self.output_per_layer.append(copy.deepcopy(netH))
             # add bias 1
             inputMatrix = np.insert(
                 netH, 0, [1 for _ in range(len(netH))], axis=1)
 
             # Forward h value
             # End of loop
-        netH = np.round(netH, 5) # output 
+        netH = np.asarray(netH)
         return netH
 
     def updateWeight(self):
@@ -272,9 +272,9 @@ class Backpropagation:
                     sum_delta[idx_layer][i] = [0 for _ in range(len(self.weight_per_layer[idx_layer][i]))]
 
                     for j in range(len(self.weight_per_layer[idx_layer][i])):
-                        sum_delta[idx_layer][i][j] += np.round(instance[i]*self.learning_rate*self.input_per_layer[idx_layer].item(idx_instance,j),5)
-                        
-                    sum_delta_bias[idx_layer][i] += np.round(instance[i]*self.learning_rate*1,5)
+                        sum_delta[idx_layer][i][j] += instance[i]*self.learning_rate*self.input_per_layer[idx_layer].item(idx_instance,j)
+
+                    sum_delta_bias[idx_layer][i] += instance[i]*self.learning_rate*1
             
             # print("Sebelum weight b ias", self.weight_bias_layer[idx_layer][0])
             for i in range(len(self.bias_per_layer[idx_layer])): #add sum delta to update weight
@@ -327,6 +327,8 @@ class Backpropagation:
             print("Unit : " + str(self.array_neuron_layer[i]))
             print("Weight: " + str(self.weight_per_layer[i]))
             print("Weight Bias: " + str(self.bias_per_layer[i]))
+            # print("Net H ", str(self.net_per_layer[i][0]))
+            # print("Output", str(self.output_per_layer[i][0]))
             print("")
             
     def print_output_layer(self):
@@ -338,6 +340,8 @@ class Backpropagation:
         print("Unit : " + str(self.array_neuron_layer[i]))
         print("Weight: " + str(self.weight_per_layer[i]))
         print("Weight Bias: " + str(self.bias_per_layer[i]))
+        # print("Net H ", str(self.net_per_layer[i][0]))
+        # print("Output", str(self.output_per_layer[i][0]))
         print("")
 
     def print_layer(self, i) :
@@ -348,6 +352,8 @@ class Backpropagation:
         print("Unit : " + str(self.array_neuron_layer[i]))
         print("Weight: " + str(self.weight_per_layer[i]))
         print("Weight Bias: " + str(self.bias_per_layer[i]))
+        print("Net H ", str(self.net_per_layer[0][i]))
+        print("Output", str(self.output_per_layer[0][i]))
         print("")
 
     def printModel(self):
