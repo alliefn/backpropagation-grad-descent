@@ -1,4 +1,3 @@
-from turtle import back
 from utils import *
 from Backpropagation import *
 from sklearn.datasets import load_iris
