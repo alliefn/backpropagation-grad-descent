@@ -21,6 +21,7 @@ def main():
     error_threshold = 0.01
     max_iter = 500
     batch_size = 1
+
     # create model
     backprop = Backpropagation(n_layer = n_layer, array_neuron_layer=array_neuron_layer, array_activation=array_activation, learning_rate=learning_rate, error_threshold=error_threshold, max_iter=max_iter, batch_size=batch_size)
     
@@ -28,14 +29,6 @@ def main():
     inputData = inputData["data"].tolist()
     target = target.tolist()
 
-    # class_0_input = inputData[0:40]
-    # class_0_target = target[0:40]
-    # class_1_input = inputData[50:90]
-    # class_1_target = target[50:90]
-    # class_2_input = inputData[95:140]
-    # class_2_target = target[95:140]
-
-    
 
     inputData, target, target_unencoded = shuffle(inputData, target, target_unencoded)
     print(inputData)
@@ -54,19 +47,13 @@ def main():
     print("Real Value")
     print(target_unencoded)
 
-    print("================= NET H ======================")
-    for i in range(backprop.n_layer):
-        print("Net per layer: ", backprop.net_per_layer[i])
-        print("Output  per layer")
-        print(backprop.output_per_layer[i])
-
     # print score accuracy
     print("Score Accuracy")
     print(score_accuracy(predicted, target_unencoded))
-    confusion_matrix = confusion_matrix(predicted, target_unencoded)
+    conf_matrix = confusion_matrix(predicted, target_unencoded)
     print("Confusion Matrix")
-    print(confusion_matrix)
-    print(confusion_matrix_statistics(confusion_matrix))
+    print(conf_matrix)
+    print(confusion_matrix_statistics(conf_matrix))
     print()
         
 
