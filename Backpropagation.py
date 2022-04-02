@@ -36,6 +36,7 @@ class Backpropagation:
         self.max_iter = max_iter
         self.batch_size = batch_size
         self.net_per_layer = []
+        self.input_per_layer = []
         self.output_per_layer = []
         self.weight_per_layer = []
         self.bias_per_layer = []
@@ -183,7 +184,6 @@ class Backpropagation:
                 for instance in range(len(output_h)):
                     for neuron in range(self.array_neuron_layer[-1]):
                         error += pow(targetData[instance][neuron] - output_h[instance][neuron], 2)
-                        # print("selisih ", targetData[instance][neuron] - output_h[instance][neuron])
             
             error = error / 2
             print("---------------------")
@@ -222,12 +222,15 @@ class Backpropagation:
         self.output_per_layer = []
         self.net_per_layer = []
         # X input as matrix
-        for item in inputData: # before = inputData["input"]
+        for item in inputData:
             item.insert(0, 1)  # Insert 1 for bias at every input intance
 
-        inputMatrix = np.matrix(inputData) # before = inputData["input"])))
+        inputMatrix = np.matrix(inputData) 
         # for input layer -> hidden layer
         for i in range(self.n_layer):
+
+            self.input_per_layer.append(inputMatrix)
+
             neuronLayerMatrix = np.matrix(self.weight_bias_layer[i]).astype(float)
             # Start of looping each layer
             netH = calcNet(inputMatrix, neuronLayerMatrix)
@@ -262,30 +265,41 @@ class Backpropagation:
             sum_delta[idx_layer] = [None for _ in range(len(self.weight_per_layer[idx_layer]))]
             sum_delta_bias[idx_layer] = [0 for _ in range(len(self.bias_per_layer[idx_layer]))]
 
-            for instance in layer: #for each instance get all delta
+            for idx_instance, instance in enumerate(layer): #for each instance get all delta
                 
                 for i in range(len(instance)):
 
                     sum_delta[idx_layer][i] = [0 for _ in range(len(self.weight_per_layer[idx_layer][i]))]
 
                     for j in range(len(self.weight_per_layer[idx_layer][i])):
-                        sum_delta[idx_layer][i][j] += np.round(instance[i]*self.learning_rate*self.output_per_layer[idx_layer].item(j),5)
+                        sum_delta[idx_layer][i][j] += np.round(instance[i]*self.learning_rate*self.input_per_layer[idx_layer].item(idx_instance,j),5)
                         
                     sum_delta_bias[idx_layer][i] += np.round(instance[i]*self.learning_rate*1,5)
-                
+            
+            # print("Sebelum weight b ias", self.weight_bias_layer[idx_layer][0])
             for i in range(len(self.bias_per_layer[idx_layer])): #add sum delta to update weight
                 self.bias_per_layer[idx_layer][i] += sum_delta_bias[idx_layer][i]
                 self.weight_bias_layer[idx_layer][i][0] += sum_delta_bias[idx_layer][i]
+            # print("Setelah weight bias", self.weight_bias_layer[idx_layer][0])   
             
                     
             for i in range(len(self.weight_bias_layer[idx_layer])): #add sum delta to update weight
-                for j in range(len(self.weight_bias_layer[idx_layer][i])):
+                for j in range(1, len(self.weight_bias_layer[idx_layer][i])):
+                    # print("Sebelum", self.weight_per_layer[idx_layer][i])
+                    # print("Sum delta ", sum_delta[idx_layer][i])
+                    self.weight_per_layer[idx_layer][i][j-1] += sum_delta[idx_layer][i][j-1]                        
+                    self.weight_bias_layer[idx_layer][i][j] += sum_delta[idx_layer][i][j-1]
+                    # print("Setelah", self.weight_per_layer[idx_layer][i])
+                   
+            # for i in range(len(self.weight_bias_layer[idx_layer])): #add sum delta to update weight
+            #     for j in range(len(self.weight_bias_layer[idx_layer][i])):
+            #         print("Sebelum", self.weight_per_layer[idx_layer][i])
+            #         print("Sum delta ", sum_delta[idx_layer][i])
+            #         self.weight_per_layer[idx_layer][i][j] += sum_delta[idx_layer][i][j]
+            #         print("Setelah", self.weight_per_layer[idx_layer][i])
 
-                    self.weight_per_layer[idx_layer][i] += sum_delta[idx_layer][i]
-
-                    if j != 0:
-                        
-                        self.weight_bias_layer[idx_layer][i][j] += sum_delta[idx_layer][i][j-1]
+            #         if j != 0:
+            #             self.weight_bias_layer[idx_layer][i][j] += sum_delta[idx_layer][i][j-1]
 
     def printInfo(self):
         print("N Layer : ", self.n_layer)
@@ -356,8 +370,6 @@ class Backpropagation:
             "weight_per_layer": json.dumps(self.weight_per_layer, cls=NumpyArrayEncoder),
             "bias_per_layer":  json.dumps(self.bias_per_layer, cls=NumpyArrayEncoder), 
             "weight_bias_layer": json.dumps(self.weight_bias_layer, cls=NumpyArrayEncoder),
-            "net_per_layer":json.dumps(self.net_per_layer, cls=NumpyArrayEncoder), 
-            "output_per_layer": json.dumps(self.output_per_layer, cls=NumpyArrayEncoder),
         }
         with open(filename, 'w') as outfile:
             json.dump(data, outfile)
@@ -373,9 +385,6 @@ class Backpropagation:
         self.error_threshold = data["error_threshold"]
         self.max_iter = data["max_iter"]
         self.batch_size = data["batch_size"]
-
         self.weight_per_layer = np.asarray(json.loads(data["weight_per_layer"]))
         self.bias_per_layer = np.asarray(json.loads(data["bias_per_layer"]))
         self.weight_bias_layer = np.asarray(json.loads(data["weight_bias_layer"])) 
-        self.net_per_layer = np.asarray(json.loads(data["net_per_layer"])) 
-        self.output_per_layer =np.asarray(json.loads(data["output_per_layer"]))  
