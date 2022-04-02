@@ -163,7 +163,7 @@ class Backpropagation:
         targetData = y_train
         epoch = 0
         error = np.inf
-        np.random.seed(499)
+        np.random.seed(77070)
         self.initWeightBiasRandom(inputData)
         inputData, targetData = shuffle(inputData, targetData)
         while(epoch < self.max_iter and (error > self.error_threshold)):
