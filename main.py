@@ -41,6 +41,10 @@ def main():
     # print score accuracy
     print("Score Accuracy")
     print(score_accuracy(predicted, target_unencoded))
+    confusion_matrix = confusion_matrix(predicted, target_unencoded)
+    print("Confusion Matrix")
+    print(confusion_matrix)
+    print(confusion_matrix_statistics(confusion_matrix))
     print()
         
 
